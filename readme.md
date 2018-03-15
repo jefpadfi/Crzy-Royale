@@ -37,3 +37,5 @@ iblamedoc Discord Server: https://discord.gg/76QM7Zh
 You can reach me there pretty much all day as I work from home. If you do run into issues with the script please feel free to
 reach out to me and I'll update/fix what ever the issue was. This script was built for FinDiesel. I took his idea and
 created this script as he needed help.
+
+<a href='paypal.me/thecrzydoctor'>Donations are always welcome but not required</a>
