@@ -185,11 +185,13 @@ def Execute(data):
 def Tick():
     """Required tick function"""
     # check to see if it is time to start the battle.
-    if not crconfig.crStarted and crconfig.crStartTime is not None:
+    if not crconfig.crStarted and crconfig.crInProgress and crconfig.crStartTime is not None:
         if len(users_in_cr) <= 1 and datetime.datetime.now() >= crconfig.crStartTime:
             # The Crzy Royale Started. Though only 1 person or no one joined it.
             Parent.SendStreamMessage("Too few people joined the Crzy Royale. Please have the Streamer or Mod relaunch"
                                      " the Crzy Royale")
+            crconfig.crStarted = False
+            crconfig.crInProgress = False
         elif len(users_in_cr) >= 2 and datetime.datetime.now() >= crconfig.crStartTime:
             crconfig.crStarted = True
             Parent.SendStreamMessage("Crzy Royale has started! You may now use !crloot and !crattack (username)!"
