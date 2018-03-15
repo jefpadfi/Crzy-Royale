@@ -1,0 +1,146 @@
+{
+  "output_file": "settings.json",
+  "OnlyLive": {
+    "type": "checkbox",
+    "value": false,
+  	"label": "Only when live",
+    "tooltip": "Command is only active when stream is live",
+  	"group": "General"
+  },
+  "Usage": {
+    "type": "dropdown",
+    "value": "Stream Chat",
+    "label": "Chat Options",
+    "tooltip": "Select where you want the command to be used from.",
+    "items": ["Stream Chat","Stream Whisper","Stream Both","Discord Chat","Discord Whisper","Discord Both","Chat Both","Whisper Both","All"],
+    "group": "General"
+  },
+  "Command": {
+    "type": "textbox",
+    "value": "!crstart",
+    "label": "Command",
+    "tooltip": "Command to be used for the script. LEAVE ALONE!",
+    "group": "Crzy Royale"
+  },
+  "cmdJoin": {
+    "type": "textbox",
+    "value": "!crjoin",
+    "label": "Join Command",
+    "tooltip": "Command to be used for the script. LEAVE ALONE!",
+    "group": "Crzy Royale"
+  },
+  "cmdAttack": {
+    "type": "textbox",
+    "value": "!crattack",
+    "label": "Attack Command",
+    "tooltip": "Command to be used for the script. LEAVE ALONE!",
+    "group": "Crzy Royale"
+  },
+  "cmdLoot": {
+    "type": "textbox",
+    "value": "!crloot",
+    "label": "Loot Command",
+    "tooltip": "Command to be used for the script. LEAVE ALONE!",
+    "group": "Crzy Royale"
+  },
+  "CRLoser": {
+    "type": "numberbox",
+    "value": 10,
+    "label": "Loser gets some credits. Cause PUBG Says so!",
+    "tooltip": "How many currency a loser will get.",
+    "group": "Crzy Royale"
+  },
+  "CRWinner": {
+    "type": "numberbox",
+    "value": 50,
+    "label": "Winner Currency",
+    "tooltip": "How much the winner gets. This value is multiplied by 2 for winning!",
+    "group": "Crzy Royale"
+  },
+  "CRCreatedMsg": {
+    "type": "textbox",
+    "value": "The Crzy Royale has been started. Use !cr join to join the Crzy Royale",
+    "label": "Crzy Royale Created Message",
+    "tooltip": "Allows the user to know the Crzy Royale has started.",
+    "group": "Crzy Royale"
+  },
+  "CRErrorMsg": {
+    "type": "textbox",
+    "value": "There was an issue with creating the Crzy Royale.",
+    "label": "Crzy Royale Error Message",
+    "tooltip": "Shows a message saying there was an issue with creating the Crzy Royale.",
+    "group": "Crzy Royale"
+  },
+  "Permission": {
+    "type": "dropdown",
+    "value": "Everyone",
+    "items": ["Everyone","Regular","Subscriber","GameWisp Subscriber","User_Specific","Min_Rank","Min_Points","Min_Hours","Moderator","Editor","Caster"],
+    "label": "Permission level",
+    "tooltip": "Set the permission level for the command",
+    "group": "Permissions"
+  },
+    "PermissionInfo": {
+    "type": "textbox",
+    "value": "",
+    "label": "Permission level info",
+    "tooltip": "Set the user, rank or tier for permission",
+    "group": "Permissions"
+  },
+   "PermissionResp": {
+    "type": "textbox",
+    "value": "{0} -> only {1} and higher can use this command",
+    "label": "Info response",
+    "tooltip": "Message sent when user doesn't have the required permission. \r\n{0} = user \r\n{1} = valid wires",
+    "group": "Permissions"
+  },
+  "MinCoolDown": {
+    "type": "numberbox",
+    "value": 30,
+    "label": "Min Cooldown (Seconds)",
+    "tooltip": "Minimum cooldown time until !cr start can be used.",
+    "group": "Cooldown"
+  },
+  "MaxCoolDown": {
+    "type": "numberbox",
+    "value": 60,
+    "label": "Min Cooldown (Seconds)",
+    "tooltip": "Maximum cooldown time until !cr start can be used.",
+    "group": "Cooldown"
+  },
+    "OnCoolDown": {
+    "type": "textbox",
+    "value": "{0} the command is still on cooldown for {1} seconds!",
+  	"label": "Cooldown Response",
+    "tooltip": "The message that the bot will display when the command is on cooldown. \r\n {0} = user \r\n {1} = time remaining",
+  	"group": "Cooldown"
+  },
+  "UserCoolDown": {
+    "type": "numberbox",
+    "label": "User Cooldown (seconds)",
+    "value": 45,
+    "tooltip": "User cooldown in seconds.",
+    "group": "Cooldown"
+  },
+  "OnUserCoolDown": {
+    "type": "textbox",
+    "value": "{0} the command is still on user cooldown for {1} seconds!",
+  	"label": "User Cooldown Response",
+    "tooltip": "The message that the bot will display when the command is on user cooldown. \r\n {0} = user \r\n {1} = time remaining",
+  	"group": "Cooldown"
+  },
+  "InfoResponse": {
+    "type": "textbox",
+    "value": "To create a crzy royale use !cr start (must be broadcaster or mod).",
+    "label": "Info response",
+    "tooltip": "Response when the command is used wrong.",
+    "group": "Responses"
+  },
+    "openReadMe": {
+    "type": "button",
+    "label": "Open README.txt",
+    "tooltip": "Opens the README.txt for this script",
+    "function": "OpenReadMe",
+    "wsevent": "",
+    "group": ""
+  }
+}
