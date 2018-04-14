@@ -54,8 +54,6 @@ class Settings:
             self.cmdLoot = '!crloot'
             self.cmdAttack = '!crattack'
             self.Usage = 'Stream Chat'
-            self.MinCoolDown = 600
-            self.MaxCoolDown = 1000
             self.Permission = 'Everyone'
             self.PermissionInfo = ''
             self.PermissionResp = '{0} -> only {1} and higher can use this command'
@@ -63,9 +61,13 @@ class Settings:
             self.CRErrorMsg = 'There was an issue with creating the Crzy Royale'
             self.CRLoser = 10
             self.CRWinner = 50
-            self.OnCoolDown = '{0} the command is still on cool down for {1} seconds!'
-            self.UserCoolDown = 15
-            self.OnUserCoolDown = '{0} the command iss till on user cooldown for {1} seconds!'
+            self.UseCD = True
+            self.CoolDown = 5
+            self.OnCoolDown = "{0} the command is still on cooldown for {1} seconds!"
+            self.UserCoolDown = 10
+            self.OnUserCoolDown = "{0} the command is still on user cooldown for {1} seconds!"
+            self.CasterCD = True
+            self.NoCurrency = "{0} -> You don't have any currency to create a giphy!"
             self.InfoResponse = 'To create a giphy use !giphy keyword. At this time the giphy command only accepts' \
                                 'two keyword. Future versions will allow a full string of keywords.'
 
@@ -97,8 +99,6 @@ def Init():
     """ Intialize Data (only called on load) """
     global CGSettings
     CGSettings = Settings(settingsFile)
-    randomTime = Parent.GetRandom(CGSettings.MinCoolDown, CGSettings.MaxCoolDown)
-    Parent.AddCooldown(ScriptName, "!cr", randomTime)
     return
 
 
@@ -117,6 +117,7 @@ def Execute(data):
             crconfig.crInProgress = True
             currentTime = datetime.datetime.now()
             crconfig.crStartTime = currentTime + datetime.timedelta(minutes=5)
+            crconfig.SaveSettings(settingsFile)
             with open('cooldown.txt', 'w') as outfile:
                 outfile.write(str(crconfig.crInProgress) + str(crconfig.crStartTime))
             return
@@ -192,10 +193,12 @@ def Tick():
                                      " the Crzy Royale")
             crconfig.crStarted = False
             crconfig.crInProgress = False
+            crconfig.SaveSettings(settingsFile)
         elif len(users_in_cr) >= 2 and datetime.datetime.now() >= crconfig.crStartTime:
             crconfig.crStarted = True
             Parent.SendStreamMessage("Crzy Royale has started! You may now use !crloot and !crattack (username)!"
                                      " Good luck and have fun!")
+            crconfig.SaveSettings(settingsFile)
             return
 
 # ---------------------------------------
@@ -240,8 +243,75 @@ def SendResp(data, rUsage, sendMessage):
     return
 
 
+"""
+Required custom fucntions needed for plugin.
+"""
+
 def OpenReadMe():
     """Open the readme.txt in the scripts folder"""
     location = os.path.join(os.path.dirname(__file__), "README.txt")
     os.startfile(location)
     return
+
+
+def haspermission(data):
+    """ CHecks to see if the user hs the correct permission.  Based on Castorr91's Gamble"""
+    if not Parent.HasPermission(data.User, CGSettings.Permission, CGSettings.PermissionInfo):
+        message = CGSettings.PermissionResp.format(data.UserName, CGSettings.Permission, CGSettings.PermissionInfo)
+        SendResp(data, CGSettings.Usage, message)
+        return False
+    return True
+
+def is_on_cooldown(data):
+    """ Checks to see if user is on cooldown. Based on Castorr91's Gamble"""
+    # check if command is on cooldown
+    cooldown = Parent.IsOnCooldown(ScriptName, CGSettings.Command)
+    user_cool_down = Parent.IsOnUserCooldown(ScriptName, CGSettings.Command, data.User)
+    caster = Parent.HasPermission(data.User, "Caster", "")
+
+    if (cooldown or user_cool_down) and caster is False and not CGSettings.CasterCD:
+
+        if CGSettings.UseCD:
+            cooldownDuration = Parent.GetCooldownDuration(ScriptName, CGSettings.Command)
+            userCDD = Parent.GetUserCooldownDuration(ScriptName, CGSettings.Command, data.User)
+
+            if cooldownDuration > userCDD:
+                m_CooldownRemaining = cooldownDuration
+
+                message = CGSettings.OnCoolDown.format(data.UserName, m_CooldownRemaining)
+                SendResp(data, CGSettings.Usage, message)
+
+            else:
+                m_CooldownRemaining = userCDD
+
+                message = CGSettings.OnUserCoolDown.format(data.UserName, m_CooldownRemaining)
+                SendResp(data, CGSettings.Usage, message)
+        return True
+    elif (cooldown or user_cool_down) and CGSettings.CasterCD:
+        if CGSettings.UseCD:
+            cooldownDuration = Parent.GetCooldownDuration(ScriptName, CGSettings.Command)
+            userCDD = Parent.GetUserCooldownDuration(ScriptName, CGSettings.Command, data.User)
+
+            if cooldownDuration > userCDD:
+                m_CooldownRemaining = cooldownDuration
+
+                message = CGSettings.OnCoolDown.format(data.UserName, m_CooldownRemaining)
+                SendResp(data, CGSettings.Usage, message)
+
+            else:
+                m_CooldownRemaining = userCDD
+
+                message = CGSettings.OnUserCoolDown.format(data.UserName, m_CooldownRemaining)
+                SendResp(data, CGSettings.Usage, message)
+        return True
+    return False
+
+def addcooldown(data):
+    """Create Cooldowns Based on Castorr91's Gamble"""
+    if Parent.HasPermission(data.User, "Caster", "") and CGSettings.CasterCD:
+        Parent.AddCooldown(ScriptName, CGSettings.Command, CGSettings.CoolDown)
+        return
+
+    else:
+        Parent.AddUserCooldown(ScriptName, CGSettings.Command, data.User, CGSettings.UserCoolDown)
+        Parent.AddCooldown(ScriptName, CGSettings.Command, CGSettings.CoolDown)

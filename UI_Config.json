@@ -93,21 +93,28 @@
     "tooltip": "Message sent when user doesn't have the required permission. \r\n{0} = user \r\n{1} = valid wires",
     "group": "Permissions"
   },
-  "MinCoolDown": {
+  "CasterCD": {
+    "type": "checkbox",
+    "value": true,
+  	"label": "Caster uses cooldown",
+    "tooltip": "Enable/Disable cooldown for caster",
+  	"group": "Cooldown"
+  },
+  "UseCD": {
+    "type": "checkbox",
+    "value": false,
+  	"label": "Use Cooldown Messages",
+    "tooltip": "Enable/Disable cooldown messages",
+  	"group": "Cooldown"
+  },
+  "CoolDown": {
     "type": "numberbox",
-    "value": 30,
-    "label": "Min Cooldown (Seconds)",
-    "tooltip": "Minimum cooldown time until !cr start can be used.",
+    "label": "User Cooldown (seconds)",
+    "value": 5,
+    "tooltip": "User cooldown in seconds.",
     "group": "Cooldown"
   },
-  "MaxCoolDown": {
-    "type": "numberbox",
-    "value": 60,
-    "label": "Min Cooldown (Seconds)",
-    "tooltip": "Maximum cooldown time until !cr start can be used.",
-    "group": "Cooldown"
-  },
-    "OnCoolDown": {
+  "OnCoolDown": {
     "type": "textbox",
     "value": "{0} the command is still on cooldown for {1} seconds!",
   	"label": "Cooldown Response",
@@ -117,7 +124,7 @@
   "UserCoolDown": {
     "type": "numberbox",
     "label": "User Cooldown (seconds)",
-    "value": 45,
+    "value": 10,
     "tooltip": "User cooldown in seconds.",
     "group": "Cooldown"
   },
@@ -133,6 +140,13 @@
     "value": "To create a crzy royale use !cr start (must be broadcaster or mod).",
     "label": "Info response",
     "tooltip": "Response when the command is used wrong.",
+    "group": "Responses"
+  },
+  "NoCurrency": {
+    "type": "textbox",
+    "value": "{0} -> You don't have any currency to use Crzy Royale!",
+    "label": "No currency response",
+    "tooltip": "Message sent when user doesn't have any currency to use Crzy Royale \r\n{0} = User",
     "group": "Responses"
   },
     "openReadMe": {
