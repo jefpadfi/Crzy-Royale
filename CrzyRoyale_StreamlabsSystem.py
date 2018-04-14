@@ -16,6 +16,7 @@ import json
 import random
 import datetime
 import sys
+
 sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
 import CrzyRoyaleConfigs as crconfig
 
@@ -36,7 +37,6 @@ Version = "1.0.0"
 # ---------------------------------------
 
 settingsFile = os.path.join(os.path.dirname(__file__), "settings.json")
-
 
 # global vars that dont need to be saved
 users_in_cr = {}
@@ -70,7 +70,6 @@ class Settings:
             self.NoCurrency = "{0} -> You don't have any currency to create a giphy!"
             self.InfoResponse = 'To create a giphy use !giphy keyword. At this time the giphy command only accepts' \
                                 'two keyword. Future versions will allow a full string of keywords.'
-
 
     def ReloadSettings(self, data):
         """ Reload settings file. """
@@ -117,7 +116,6 @@ def Execute(data):
             crconfig.crInProgress = True
             currentTime = datetime.datetime.now()
             crconfig.crStartTime = currentTime + datetime.timedelta(minutes=5)
-            crconfig.SaveSettings(settingsFile)
             with open('cooldown.txt', 'w') as outfile:
                 outfile.write(str(crconfig.crInProgress) + str(crconfig.crStartTime))
             return
@@ -158,14 +156,16 @@ def Execute(data):
 
             if attacker_power > user_being_attacked_power:
                 # attacker wins
-                SendResp(data, CGSettings.Usage, "{0} was elminated by {1}!".format(user_being_attacked, attacking_user))
+                SendResp(data, CGSettings.Usage,
+                         "{0} was elminated by {1}!".format(user_being_attacked, attacking_user))
                 del users_in_cr[user_being_attacked]
                 # Give loser some currency
                 Parent.AddPoints(user_being_attacked, CGSettings.CRLoser)
                 return
             elif attacker_power < user_being_attacked_power:
                 # pplayer being attacked wins
-                SendResp(data, CGSettings.Usage,  "{0} was elminated by {1}!".format(attacking_user, user_being_attacked))
+                SendResp(data, CGSettings.Usage,
+                         "{0} was elminated by {1}!".format(attacking_user, user_being_attacked))
                 del users_in_cr[attacking_user]
                 Parent.AddPoints(attacking_user, CGSettings.CRLoser)
                 return
@@ -176,7 +176,8 @@ def Execute(data):
             # check how many users are left in the users_in_cr to see if only one remains
             if len(users_in_cr) == 1:
                 # only one user remains. They have won!
-                SendResp(data, CGSettings.Usage, "{0} has won the Crzy Royale! They now have all the glory!".format(users_in_cr.keys()[0]))
+                SendResp(data, CGSettings.Usage,
+                         "{0} has won the Crzy Royale! They now have all the glory!".format(users_in_cr.keys()[0]))
                 # give the winner points
                 Parent.AddPoints(users_in_cr.keys()[0], CGSettings.CRWinner * 2)
                 users_in_cr.clear()
@@ -193,13 +194,12 @@ def Tick():
                                      " the Crzy Royale")
             crconfig.crStarted = False
             crconfig.crInProgress = False
-            crconfig.SaveSettings(settingsFile)
         elif len(users_in_cr) >= 2 and datetime.datetime.now() >= crconfig.crStartTime:
             crconfig.crStarted = True
             Parent.SendStreamMessage("Crzy Royale has started! You may now use !crloot and !crattack (username)!"
                                      " Good luck and have fun!")
-            crconfig.SaveSettings(settingsFile)
             return
+
 
 # ---------------------------------------
 # 	[Optional] Usage functions
@@ -247,6 +247,7 @@ def SendResp(data, rUsage, sendMessage):
 Required custom fucntions needed for plugin.
 """
 
+
 def OpenReadMe():
     """Open the readme.txt in the scripts folder"""
     location = os.path.join(os.path.dirname(__file__), "README.txt")
@@ -261,6 +262,7 @@ def haspermission(data):
         SendResp(data, CGSettings.Usage, message)
         return False
     return True
+
 
 def is_on_cooldown(data):
     """ Checks to see if user is on cooldown. Based on Castorr91's Gamble"""
@@ -305,6 +307,7 @@ def is_on_cooldown(data):
                 SendResp(data, CGSettings.Usage, message)
         return True
     return False
+
 
 def addcooldown(data):
     """Create Cooldowns Based on Castorr91's Gamble"""
