@@ -116,17 +116,15 @@ def Execute(data):
             crconfig.crInProgress = True
             currentTime = datetime.datetime.now()
             crconfig.crStartTime = currentTime + datetime.timedelta(minutes=5)
-            with open('cooldown.txt', 'w') as outfile:
-                outfile.write(str(crconfig.crInProgress) + str(crconfig.crStartTime))
             return
 
-        elif data.GetParam(0).lower() == CGSettings.cmdJoin and crconfig.crInProgress and not crconfig.crStarted:
+        if data.GetParam(0).lower() == CGSettings.cmdJoin and crconfig.crInProgress and not crconfig.crStarted:
             # user has joined the crzy royale
             users_in_cr[data.User] = 0
             SendResp(data, CGSettings.Usage, "{0} has entered the Crzy Royale|".format(data.User))
             return
 
-        elif data.GetParam(0).lower() == CGSettings.cmdLoot and crconfig.crStarted:
+        if data.GetParam(0).lower() == CGSettings.cmdLoot and crconfig.crStarted:
             # user is trying to loot
 
             # lets generate a "random number"
@@ -135,7 +133,7 @@ def Execute(data):
             SendResp(data, CGSettings.Usage, "{0} has just looted an item!".format(data.User))
             return
 
-        elif data.GetParam(0).lower() == CGSettings.cmdAttack and crconfig.crStarted:
+        if data.GetParam(0).lower() == CGSettings.cmdAttack and crconfig.crStarted:
             # user is trying to attack
             attacking_user = data.User
             user_being_attacked = data.GetParam(1)
