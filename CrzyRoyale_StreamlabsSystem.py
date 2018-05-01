@@ -17,8 +17,6 @@ import random
 import datetime
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
-import CrzyRoyaleConfigs as crconfig
 
 clr.AddReference("IronPython.SQLite.dll")
 clr.AddReference("IronPython.Modules.dll")
@@ -105,98 +103,20 @@ def Execute(data):
     """ Executes data and processes the message. """
 
     if data.IsChatMessage():
-        # lets handle the messages.
-        is_caster = Parent.HasPermission(data.User, "Caster", "")
-        is_mod = Parent.HasPermission(data.User, "Moderator", "")
-
-        if data.GetParam(0).lower() == CGSettings.Command and not crconfig.crInProgress and is_caster or is_mod:
-            # the start command has been executed. Lets post the message and clear
-            SendResp(data, CGSettings.Usage, CGSettings.CRCreatedMsg)
-            SendResp(data, CGSettings.Usage, "Crzy Royale will start in 5 minutes!")
-            crconfig.crInProgress = True
-            currentTime = datetime.datetime.now()
-            crconfig.crStartTime = currentTime + datetime.timedelta(minutes=5)
-            return
-
-        if data.GetParam(0).lower() == CGSettings.cmdJoin and crconfig.crInProgress and not crconfig.crStarted:
-            # user has joined the crzy royale
-            users_in_cr[data.User] = 0
-            SendResp(data, CGSettings.Usage, "{0} has entered the Crzy Royale|".format(data.User))
-            return
-
-        if data.GetParam(0).lower() == CGSettings.cmdLoot and crconfig.crStarted:
-            # user is trying to loot
-
-            # lets generate a "random number"
-            item = random.randint(1, 6)
-            users_in_cr[data.User] = item
-            SendResp(data, CGSettings.Usage, "{0} has just looted an item!".format(data.User))
-            return
-
-        if data.GetParam(0).lower() == CGSettings.cmdAttack and crconfig.crStarted:
-            # user is trying to attack
-            attacking_user = data.User
-            user_being_attacked = data.GetParam(1)
-
-            # lets check if both users are in the users_in_cr dict
-            if user_being_attacked not in users_in_cr:
-                SendResp(data, CGSettings.Usage, "{0} the user {1} is not in the Crzy Royale!".format(attacking_user,
-                                                                                                      user_being_attacked))
-                return
-
-            if attacking_user not in users_in_cr:
-                SendResp(data, CGSettings.Usage, "{0} you are not in the Crzy Royale!".format(attacking_user))
-                return
-
-            # if we get here they both are in the Crzy Royale. Lets see who can win
-            attacker_power = users_in_cr[attacking_user]
-            user_being_attacked_power = users_in_cr[user_being_attacked]
-
-            if attacker_power > user_being_attacked_power:
-                # attacker wins
-                SendResp(data, CGSettings.Usage,
-                         "{0} was elminated by {1}!".format(user_being_attacked, attacking_user))
-                del users_in_cr[user_being_attacked]
-                # Give loser some currency
-                Parent.AddPoints(user_being_attacked, CGSettings.CRLoser)
-                return
-            elif attacker_power < user_being_attacked_power:
-                # pplayer being attacked wins
-                SendResp(data, CGSettings.Usage,
-                         "{0} was elminated by {1}!".format(attacking_user, user_being_attacked))
-                del users_in_cr[attacking_user]
-                Parent.AddPoints(attacking_user, CGSettings.CRLoser)
-                return
-            elif attacker_power == user_being_attacked_power:
-                # they are the same. Assign random number to boost both and see who will win
-                return
-
-            # check how many users are left in the users_in_cr to see if only one remains
-            if len(users_in_cr) == 1:
-                # only one user remains. They have won!
-                SendResp(data, CGSettings.Usage,
-                         "{0} has won the Crzy Royale! They now have all the glory!".format(users_in_cr.keys()[0]))
-                # give the winner points
-                Parent.AddPoints(users_in_cr.keys()[0], CGSettings.CRWinner * 2)
-                users_in_cr.clear()
-                return
+        # check what command is being used.
+        if data.GetParam(0).lower() == CGSettings.Command.lower():
+            SendResp(data, CGSettings.Usage, 'Start command used.')
+        elif data.GetParam(0).lower() == CGSettings.cmdJoin.lower():
+            SendResp(data, CGSettings.Usage, 'Join command used.')
+        elif data.GetParam(0).lower() == CGSettings.cmdLoot.lower():
+            SendResp(data, CGSettings.Usage, 'Loot command used.')
+        elif data.GetParam(0).lower() == CGSettings.cmdAttack.lower() and data.GetParamCount() == 2:
+            SendResp(data, CGSettings.Usage, 'Attack command used {0}.'.format(data.GetParam(1)))
 
 
 def Tick():
     """Required tick function"""
-    # check to see if it is time to start the battle.
-    if not crconfig.crStarted and crconfig.crInProgress and crconfig.crStartTime is not None:
-        if len(users_in_cr) <= 1 and datetime.datetime.now() >= crconfig.crStartTime:
-            # The Crzy Royale Started. Though only 1 person or no one joined it.
-            Parent.SendStreamMessage("Too few people joined the Crzy Royale. Please have the Streamer or Mod relaunch"
-                                     " the Crzy Royale")
-            crconfig.crStarted = False
-            crconfig.crInProgress = False
-        elif len(users_in_cr) >= 2 and datetime.datetime.now() >= crconfig.crStartTime:
-            crconfig.crStarted = True
-            Parent.SendStreamMessage("Crzy Royale has started! You may now use !crloot and !crattack (username)!"
-                                     " Good luck and have fun!")
-            return
+    pass
 
 
 # ---------------------------------------
