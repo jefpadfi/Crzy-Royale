@@ -1,7 +1,7 @@
 """
 Programmer: TheCrzyDoctor
 Description: This script enables you to have a battle royale in your chat.
-Date: 02/19/2017
+Date: 02/19/2018
 Version: 1
 """
 
@@ -17,9 +17,11 @@ import random
 import datetime
 import sys
 
-
 clr.AddReference("IronPython.SQLite.dll")
 clr.AddReference("IronPython.Modules.dll")
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
+import CRConfigs
 
 # ---------------------------------------
 # [Required] Script Information
@@ -35,7 +37,7 @@ Version = "1.0.0"
 # ---------------------------------------
 
 settingsFile = os.path.join(os.path.dirname(__file__), "settings.json")
-
+DatabaseFile = os.path.join(os.path.dirname(__file__), "CRRoyale.sqlite")
 # global vars that dont need to be saved
 users_in_cr = {}
 
@@ -65,9 +67,8 @@ class Settings:
             self.UserCoolDown = 10
             self.OnUserCoolDown = "{0} the command is still on user cooldown for {1} seconds!"
             self.CasterCD = True
-            self.NoCurrency = "{0} -> You don't have any currency to create a giphy!"
-            self.InfoResponse = 'To create a giphy use !giphy keyword. At this time the giphy command only accepts' \
-                                'two keyword. Future versions will allow a full string of keywords.'
+            self.NoCurrency = "{0} -> You don't have any currency to participate in the crzy royale!"
+            self.InfoResponse = 'Info coming in next version'
 
     def ReloadSettings(self, data):
         """ Reload settings file. """
@@ -84,8 +85,8 @@ class Settings:
 
 def ReloadSettings(jsonData):
     """ Reload Settings on Save """
-    global CGSettings
-    CGSettings.ReloadSettings(jsonData)
+    global CRSettings
+    CRSettings.ReloadSettings(jsonData)
     return
 
 
@@ -94,8 +95,8 @@ def ReloadSettings(jsonData):
 # ---------------------------------------
 def Init():
     """ Intialize Data (only called on load) """
-    global CGSettings
-    CGSettings = Settings(settingsFile)
+    global CRSettings
+    CRSettings = Settings(settingsFile)
     return
 
 
@@ -104,14 +105,54 @@ def Execute(data):
 
     if data.IsChatMessage():
         # check what command is being used.
-        if data.GetParam(0).lower() == CGSettings.Command.lower():
-            SendResp(data, CGSettings.Usage, 'Start command used.')
-        elif data.GetParam(0).lower() == CGSettings.cmdJoin.lower():
-            SendResp(data, CGSettings.Usage, 'Join command used.')
-        elif data.GetParam(0).lower() == CGSettings.cmdLoot.lower():
-            SendResp(data, CGSettings.Usage, 'Loot command used.')
-        elif data.GetParam(0).lower() == CGSettings.cmdAttack.lower() and data.GetParamCount() == 2:
-            SendResp(data, CGSettings.Usage, 'Attack command used {0}.'.format(data.GetParam(1)))
+        if data.GetParam(0).lower() == CRSettings.Command.lower() and not CRConfigs.started:
+            CRConfigs.started = True
+            CRConfigs.allowJoin = True
+            CRConfigs.allowLoot = True
+            CRConfigs.allowedAttack = True
+            SendResp(data, CRSettings.Usage, 'Crzy Royale has started! Use !crjoin to join, !crloot to loot '
+                                             'and !crattack (username) to attack.')
+        elif data.GetParam(0).lower() == CRSettings.cmdJoin.lower() and CRConfigs.allowJoin is True:
+            # set default value for loot when they join
+            if data.User not in CRConfigs.participants:
+                CRConfigs.participants[data.User] = 0
+                SendResp(data, CRSettings.Usage, '{0} joined the Crzy Royale.'.format(data.User))
+            else:
+                SendResp(data, CRSettings.Usage, '{0}, you are already in the Crzy Royale.'.format(data.User))
+        elif data.GetParam(0).lower() == CRSettings.cmdLoot.lower() and CRConfigs.allowLoot is True:
+            if data.User not in CRConfigs.hasLooted:
+                r = random.randint(0, 6)
+                CRConfigs.participants[data.User] = r
+                SendResp(data, CRSettings.Usage, '{0} just obtained level {1} loot.'.format(data.User, r))
+                CRConfigs.hasLooted.append(data.User)
+            else:
+                SendResp(data, CRSettings.Usage, '{0} you can only loot once.'.format(data.User))
+        elif data.GetParam(0).lower() == CRSettings.cmdAttack.lower() and data.GetParamCount() == 2 and CRConfigs.allowAttack is True:
+            if len(CRConfigs.participants) > 1:
+                SendResp(data, CRSettings.Usage, '{0} is attacking {1}.'.format(data.User, data.GetParam(1)))
+                if CRConfigs.participants[data.User] > CRConfigs.participants[data.GetParam(1)]:
+                    SendResp(data, CRSettings.Usage, '{0} has killed {1}.'.format(data.User, data.GetParam(1)))
+                    del CRConfigs.participants[data.GetParam(1)]
+                elif CRConfigs.participants[data.User] < CRConfigs.participants[data.GetParam(1)]:
+                    SendResp(data, CRSettings.Usage, '{0} has killed {1}.'.format(data.GetParam(1), data.User))
+                    del CRConfigs.participants[data.User]
+                elif CRConfigs.participants[data.User] == CRConfigs.participants[data.GetParam(1)]:
+                    SendResp(data, CRSettings.Usage, '{0} and {1} are equally matched. Bonuses are being given out to see who wins.')
+                    # add bonus to both. Attacker gets 2 and Defender gets 3
+                    CRConfigs.participants[data.User] = CRConfigs.participants[data.User] + 2
+                    CRConfigs.participants[data.GetParam(1)] = CRConfigs.participants[data.GetParam(1)] + 3
+                    # run check again to see who won.
+                    if CRConfigs.participants[data.User] > CRConfigs.participants[data.GetParam(1)]:
+                        SendResp(data, CRSettings.Usage, '{0} has killed {1}.'.format(data.User, data.GetParam(1)))
+                        del CRConfigs.participants[data.GetParam(1)]
+                    elif CRConfigs.participants[data.User] < CRConfigs.participants[data.GetParam(1)]:
+                        SendResp(data, CRSettings.Usage, '{0} has killed {1}.'.format(data.GetParam(1), data.User))
+                        del CRConfigs.participants[data.User]
+            else:
+                # Announce the winner
+                pass
+        elif not CRConfigs.started:
+            SendResp(data, CRSettings.Usage, 'Crzy Royale has not started yet. Please wait till someone starts it.')
 
 
 def Tick():
@@ -175,9 +216,9 @@ def OpenReadMe():
 
 def haspermission(data):
     """ CHecks to see if the user hs the correct permission.  Based on Castorr91's Gamble"""
-    if not Parent.HasPermission(data.User, CGSettings.Permission, CGSettings.PermissionInfo):
-        message = CGSettings.PermissionResp.format(data.UserName, CGSettings.Permission, CGSettings.PermissionInfo)
-        SendResp(data, CGSettings.Usage, message)
+    if not Parent.HasPermission(data.User, CRSettings.Permission, CRSettings.PermissionInfo):
+        message = CRSettings.PermissionResp.format(data.UserName, CRSettings.Permission, CRSettings.PermissionInfo)
+        SendResp(data, CRSettings.Usage, message)
         return False
     return True
 
@@ -185,54 +226,54 @@ def haspermission(data):
 def is_on_cooldown(data):
     """ Checks to see if user is on cooldown. Based on Castorr91's Gamble"""
     # check if command is on cooldown
-    cooldown = Parent.IsOnCooldown(ScriptName, CGSettings.Command)
-    user_cool_down = Parent.IsOnUserCooldown(ScriptName, CGSettings.Command, data.User)
+    cooldown = Parent.IsOnCooldown(ScriptName, CRSettings.Command)
+    user_cool_down = Parent.IsOnUserCooldown(ScriptName, CRSettings.Command, data.User)
     caster = Parent.HasPermission(data.User, "Caster", "")
 
-    if (cooldown or user_cool_down) and caster is False and not CGSettings.CasterCD:
+    if (cooldown or user_cool_down) and caster is False and not CRSettings.CasterCD:
 
-        if CGSettings.UseCD:
-            cooldownDuration = Parent.GetCooldownDuration(ScriptName, CGSettings.Command)
-            userCDD = Parent.GetUserCooldownDuration(ScriptName, CGSettings.Command, data.User)
+        if CRSettings.UseCD:
+            cooldownDuration = Parent.GetCooldownDuration(ScriptName, CRSettings.Command)
+            userCDD = Parent.GetUserCooldownDuration(ScriptName, CRSettings.Command, data.User)
 
             if cooldownDuration > userCDD:
                 m_CooldownRemaining = cooldownDuration
 
-                message = CGSettings.OnCoolDown.format(data.UserName, m_CooldownRemaining)
-                SendResp(data, CGSettings.Usage, message)
+                message = CRSettings.OnCoolDown.format(data.UserName, m_CooldownRemaining)
+                SendResp(data, CRSettings.Usage, message)
 
             else:
                 m_CooldownRemaining = userCDD
 
-                message = CGSettings.OnUserCoolDown.format(data.UserName, m_CooldownRemaining)
-                SendResp(data, CGSettings.Usage, message)
+                message = CRSettings.OnUserCoolDown.format(data.UserName, m_CooldownRemaining)
+                SendResp(data, CRSettings.Usage, message)
         return True
-    elif (cooldown or user_cool_down) and CGSettings.CasterCD:
-        if CGSettings.UseCD:
-            cooldownDuration = Parent.GetCooldownDuration(ScriptName, CGSettings.Command)
-            userCDD = Parent.GetUserCooldownDuration(ScriptName, CGSettings.Command, data.User)
+    elif (cooldown or user_cool_down) and CRSettings.CasterCD:
+        if CRSettings.UseCD:
+            cooldownDuration = Parent.GetCooldownDuration(ScriptName, CRSettings.Command)
+            userCDD = Parent.GetUserCooldownDuration(ScriptName, CRSettings.Command, data.User)
 
             if cooldownDuration > userCDD:
                 m_CooldownRemaining = cooldownDuration
 
-                message = CGSettings.OnCoolDown.format(data.UserName, m_CooldownRemaining)
-                SendResp(data, CGSettings.Usage, message)
+                message = CRSettings.OnCoolDown.format(data.UserName, m_CooldownRemaining)
+                SendResp(data, CRSettings.Usage, message)
 
             else:
                 m_CooldownRemaining = userCDD
 
-                message = CGSettings.OnUserCoolDown.format(data.UserName, m_CooldownRemaining)
-                SendResp(data, CGSettings.Usage, message)
+                message = CRSettings.OnUserCoolDown.format(data.UserName, m_CooldownRemaining)
+                SendResp(data, CRSettings.Usage, message)
         return True
     return False
 
 
 def addcooldown(data):
     """Create Cooldowns Based on Castorr91's Gamble"""
-    if Parent.HasPermission(data.User, "Caster", "") and CGSettings.CasterCD:
-        Parent.AddCooldown(ScriptName, CGSettings.Command, CGSettings.CoolDown)
+    if Parent.HasPermission(data.User, "Caster", "") and CRSettings.CasterCD:
+        Parent.AddCooldown(ScriptName, CRSettings.Command, CRSettings.CoolDown)
         return
 
     else:
-        Parent.AddUserCooldown(ScriptName, CGSettings.Command, data.User, CGSettings.UserCoolDown)
-        Parent.AddCooldown(ScriptName, CGSettings.Command, CGSettings.CoolDown)
+        Parent.AddUserCooldown(ScriptName, CRSettings.Command, data.User, CRSettings.UserCoolDown)
+        Parent.AddCooldown(ScriptName, CRSettings.Command, CRSettings.CoolDown)
