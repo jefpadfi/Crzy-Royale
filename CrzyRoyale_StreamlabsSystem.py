@@ -150,7 +150,7 @@ def Execute(data):
                         del CRConfigs.participants[data.User]
             else:
                 # Announce the winner
-                pass
+                SendResp(data, CRSettings.Usage, '{0} has won Crzy Royale!'.format(CRConfigs.participants))
         elif not CRConfigs.started:
             SendResp(data, CRSettings.Usage, 'Crzy Royale has not started yet. Please wait till someone starts it.')
 
