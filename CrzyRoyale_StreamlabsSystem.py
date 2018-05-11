@@ -211,7 +211,10 @@ def Execute(data):
                 SendResp(data, CRSettings.Usage, CRSettings.CrzyRoyaleWon.format(next(iter(CRConfigs.participants))))
                 # Add predefined amount of points
                 Parent.AddPoints(data.User, CRSettings.CRWinner)
-        elif not CRConfigs.started:
+        elif not CRConfigs.started and data.GetParam(0).lower() == CRSettings.Command.lower() \
+                or data.GetParam(0).lower() == CRSettings.cmdAttack.lower() \
+                or data.GetParam(0).lower() == CRSettings.cmdLoot.lower() \
+                or data.GetParam(0).lower() == CRSettings.Command.lower():
             SendResp(data, CRSettings.Usage, 'Crzy Royale has not started yet. Please wait till someone starts it.')
 
 
