@@ -109,7 +109,6 @@ def Execute(data):
             CRConfigs.started = True
             CRConfigs.allowJoin = True
             CRConfigs.allowLoot = True
-            CRConfigs.allowedAttack = True
             SendResp(data, CRSettings.Usage, 'Crzy Royale has started! Use !crjoin to join, !crloot to loot '
                                              'and !crattack (username) to attack.')
         elif data.GetParam(0).lower() == CRSettings.cmdJoin.lower() and CRConfigs.allowJoin is True:
@@ -117,6 +116,8 @@ def Execute(data):
             if data.User not in CRConfigs.participants:
                 CRConfigs.participants[data.User] = 0
                 SendResp(data, CRSettings.Usage, '{0} joined the Crzy Royale.'.format(data.User))
+                if len(CRConfigs.participants) >= 2:
+                    CRConfigs.allowAttack = True
             else:
                 SendResp(data, CRSettings.Usage, '{0}, you are already in the Crzy Royale.'.format(data.User))
         elif data.GetParam(0).lower() == CRSettings.cmdLoot.lower() and CRConfigs.allowLoot is True:
@@ -137,7 +138,8 @@ def Execute(data):
                     SendResp(data, CRSettings.Usage, '{0} has killed {1}.'.format(data.GetParam(1), data.User))
                     del CRConfigs.participants[data.User]
                 elif CRConfigs.participants[data.User] == CRConfigs.participants[data.GetParam(1)]:
-                    SendResp(data, CRSettings.Usage, '{0} and {1} are equally matched. Bonuses are being given out to see who wins.')
+                    SendResp(data, CRSettings.Usage,
+                             '{0} and {1} are equally matched. Bonuses are being given out to see who wins.')
                     # add bonus to both. Attacker gets 2 and Defender gets 3
                     CRConfigs.participants[data.User] = CRConfigs.participants[data.User] + 2
                     CRConfigs.participants[data.GetParam(1)] = CRConfigs.participants[data.GetParam(1)] + 3
@@ -150,7 +152,9 @@ def Execute(data):
                         del CRConfigs.participants[data.User]
             else:
                 # Announce the winner
-                SendResp(data, CRSettings.Usage, '{0} has won Crzy Royale!'.format(CRConfigs.participants))
+                SendResp(data, CRSettings.Usage, '{0} has won the Crzy Royale!'.format(next(iter(CRConfigs.participants))))
+                # Add predefined amount of points
+                Parent.AddPoints(data.User, CRSettings.CRWinner * 2)
         elif not CRConfigs.started:
             SendResp(data, CRSettings.Usage, 'Crzy Royale has not started yet. Please wait till someone starts it.')
 
