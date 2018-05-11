@@ -127,7 +127,6 @@ def Execute(data):
             CRConfigs.started = True
             CRConfigs.allowJoin = True
             CRConfigs.allowLoot = True
-            addcooldown(data)
             SendResp(data, CRSettings.Usage, CRSettings.CRCreatedMsg)
         elif data.GetParam(0).lower() == CRSettings.cmdJoin.lower() and CRConfigs.allowJoin is True:
             # set default value for loot when they join
