@@ -55,14 +55,21 @@ class Settings:
             self.cmdAttack = '!crattack'
             self.Usage = 'Stream Chat'
             self.Permission = 'Everyone'
+            self.CrzyRoyaleCost = 10
             self.PermissionInfo = ''
             self.PermissionResp = '{0} -> only {1} and higher can use this command'
             self.CRCreatedMsg = 'The Crzy Royale has been started. Use !crjoin to join the Crzy Royale'
             self.CRErrorMsg = 'There was an issue with creating the Crzy Royale'
+            self.JoinedCrzyRoyale = '{0} joined the Crzy Royale.'
+            self.AlreadyJoined = '{0}, you are already in the Crzy Royale.'
+            self.LootWon = '{0} just obtained level {1} loot.'
+            self.AlreadyLoot = '{0} you can only loot once.'
+            self.AttackOver = '{0} has killed {1}'
+            self.CrzyRoyaleWon = '{0} has won the Crazy Royale'
             self.CRLoser = 10
             self.CRWinner = 50
             self.UseCD = True
-            self.CoolDown = 5
+            self.CoolDown = 1000
             self.OnCoolDown = "{0} the command is still on cooldown for {1} seconds!"
             self.UserCoolDown = 10
             self.OnUserCoolDown = "{0} the command is still on user cooldown for {1} seconds!"
@@ -105,56 +112,66 @@ def Execute(data):
 
     if data.IsChatMessage():
         # check what command is being used.
+
+        # make sure the user has enough points
+        if Parent.GetPoints(data.User) < CRSettings.CrzyRoyaleCost:
+            message = CRSettings.NoCurrency.format(data.UserName)
+            SendResp(data, CRSettings.Usage, message)
+            return
+
+        # check if user or command is on cooldown.
+        if is_on_cooldown(data):
+            return
+
         if data.GetParam(0).lower() == CRSettings.Command.lower() and not CRConfigs.started:
             CRConfigs.started = True
             CRConfigs.allowJoin = True
             CRConfigs.allowLoot = True
-            SendResp(data, CRSettings.Usage, 'Crzy Royale has started! Use !crjoin to join, !crloot to loot '
-                                             'and !crattack (username) to attack.')
+            addcooldown(data)
+            SendResp(data, CRSettings.Usage, CRSettings.CRCreatedMsg)
         elif data.GetParam(0).lower() == CRSettings.cmdJoin.lower() and CRConfigs.allowJoin is True:
             # set default value for loot when they join
             if data.User not in CRConfigs.participants:
                 CRConfigs.participants[data.User] = 0
-                SendResp(data, CRSettings.Usage, '{0} joined the Crzy Royale.'.format(data.User))
+                SendResp(data, CRSettings.Usage, CRSettings.JoinedCrzyRoyale.format(data.User))
+                Parent.RemovePoints(data.User, CRSettings.CrzyRoyaleCost)
                 if len(CRConfigs.participants) >= 2:
                     CRConfigs.allowAttack = True
             else:
-                SendResp(data, CRSettings.Usage, '{0}, you are already in the Crzy Royale.'.format(data.User))
+                SendResp(data, CRSettings.Usage, CRSettings.AlreadyJoined.format(data.User))
         elif data.GetParam(0).lower() == CRSettings.cmdLoot.lower() and CRConfigs.allowLoot is True:
             if data.User not in CRConfigs.hasLooted:
                 r = random.randint(0, 6)
                 CRConfigs.participants[data.User] = r
-                SendResp(data, CRSettings.Usage, '{0} just obtained level {1} loot.'.format(data.User, r))
+                SendResp(data, CRSettings.Usage, CRSettings.LootWon.format(data.User, r))
                 CRConfigs.hasLooted.append(data.User)
             else:
-                SendResp(data, CRSettings.Usage, '{0} you can only loot once.'.format(data.User))
+                SendResp(data, CRSettings.Usage, CRSettings.AlreadyLoot.format(data.User))
         elif data.GetParam(0).lower() == CRSettings.cmdAttack.lower() and data.GetParamCount() == 2 and CRConfigs.allowAttack is True:
             if len(CRConfigs.participants) > 1:
-                SendResp(data, CRSettings.Usage, '{0} is attacking {1}.'.format(data.User, data.GetParam(1)))
+                SendResp(data, CRSettings.Usage, CRSettings.AttackOver.format(data.User, data.GetParam(1)))
                 if CRConfigs.participants[data.User] > CRConfigs.participants[data.GetParam(1)]:
-                    SendResp(data, CRSettings.Usage, '{0} has killed {1}.'.format(data.User, data.GetParam(1)))
+                    SendResp(data, CRSettings.Usage, CRSettings.AttackOver.format(data.User, data.GetParam(1)))
                     del CRConfigs.participants[data.GetParam(1)]
                 elif CRConfigs.participants[data.User] < CRConfigs.participants[data.GetParam(1)]:
-                    SendResp(data, CRSettings.Usage, '{0} has killed {1}.'.format(data.GetParam(1), data.User))
+                    SendResp(data, CRSettings.Usage, CRSettings.AttackOver.format(data.GetParam(1), data.User))
                     del CRConfigs.participants[data.User]
                 elif CRConfigs.participants[data.User] == CRConfigs.participants[data.GetParam(1)]:
-                    SendResp(data, CRSettings.Usage,
-                             '{0} and {1} are equally matched. Bonuses are being given out to see who wins.')
                     # add bonus to both. Attacker gets 2 and Defender gets 3
                     CRConfigs.participants[data.User] = CRConfigs.participants[data.User] + 2
                     CRConfigs.participants[data.GetParam(1)] = CRConfigs.participants[data.GetParam(1)] + 3
                     # run check again to see who won.
                     if CRConfigs.participants[data.User] > CRConfigs.participants[data.GetParam(1)]:
-                        SendResp(data, CRSettings.Usage, '{0} has killed {1}.'.format(data.User, data.GetParam(1)))
+                        SendResp(data, CRSettings.Usage, CRSettings.AttackOver.format(data.User, data.GetParam(1)))
                         del CRConfigs.participants[data.GetParam(1)]
                     elif CRConfigs.participants[data.User] < CRConfigs.participants[data.GetParam(1)]:
-                        SendResp(data, CRSettings.Usage, '{0} has killed {1}.'.format(data.GetParam(1), data.User))
+                        SendResp(data, CRSettings.Usage, CRSettings.AttackOver.format(data.GetParam(1), data.User))
                         del CRConfigs.participants[data.User]
             else:
                 # Announce the winner
-                SendResp(data, CRSettings.Usage, '{0} has won the Crzy Royale!'.format(next(iter(CRConfigs.participants))))
+                SendResp(data, CRSettings.Usage, CRSettings.CrzyRoyaleWon.format(next(iter(CRConfigs.participants))))
                 # Add predefined amount of points
-                Parent.AddPoints(data.User, CRSettings.CRWinner * 2)
+                Parent.AddPoints(data.User, CRSettings.CRWinner)
         elif not CRConfigs.started:
             SendResp(data, CRSettings.Usage, 'Crzy Royale has not started yet. Please wait till someone starts it.')
 

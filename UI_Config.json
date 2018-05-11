@@ -43,16 +43,23 @@
     "tooltip": "Command to be used for the script. LEAVE ALONE!",
     "group": "Crzy Royale"
   },
+  "Command": {
+    "type": "numberbox",
+    "value": "10",
+    "label": "Cost to join Crzy Royale",
+    "tooltip": "Cost of to join Crzy Royale.",
+    "group": "Crzy Royale"
+  },
   "CRLoser": {
     "type": "numberbox",
-    "value": 10,
+    "value": 200,
     "label": "Loser gets some credits. Cause PUBG Says so!",
     "tooltip": "How many currency a loser will get.",
     "group": "Crzy Royale"
   },
   "CRWinner": {
     "type": "numberbox",
-    "value": 50,
+    "value": 1000,
     "label": "Winner Currency",
     "tooltip": "How much the winner gets. This value is multiplied by 2 for winning!",
     "group": "Crzy Royale"
@@ -110,7 +117,7 @@
   "CoolDown": {
     "type": "numberbox",
     "label": "User Cooldown (seconds)",
-    "value": 5,
+    "value": 1000,
     "tooltip": "User cooldown in seconds.",
     "group": "Cooldown"
   },
@@ -140,6 +147,48 @@
     "value": "To create a crzy royale use !cr start (must be broadcaster or mod).",
     "label": "Info response",
     "tooltip": "Response when the command is used wrong.",
+    "group": "Responses"
+  },
+  "JoinedCrzyRoyale": {
+    "type": "textbox",
+    "value": "{0} joined the Crzy Royale.",
+    "label": "Joined Crzy Royale",
+    "tooltip": "{0} Player Name",
+    "group": "Responses"
+  },
+  "AlreadyJoined": {
+    "type": "textbox",
+    "value": "{0}, you are already in the Crzy Royale.",
+    "label": "Player Already Joined",
+    "tooltip": "{0} Player Name",
+    "group": "Responses"
+  },
+  "LootWon": {
+    "type": "textbox",
+    "value": "{0} just obtained level {1} loot.",
+    "label": "Loot Won",
+    "tooltip": "{0} User who looted\n{1} strength of the loot.",
+    "group": "Responses"
+  },
+  "AlreadyLoot": {
+    "type": "textbox",
+    "value": "{0} you can only loot once.",
+    "label": "Already Looted Response",
+    "tooltip": "{0} user who already looted.",
+    "group": "Responses"
+  },
+  "AttackOver": {
+    "type": "textbox",
+    "value": "{0} has killed {1}",
+    "label": "Announced who Won Attack",
+    "tooltip": "{0} Winner\n{1} Loser",
+    "group": "Responses"
+  },
+  "CrzyRoyaleWon": {
+    "type": "textbox",
+    "value": "{0} has won the Crazy Royale",
+    "label": "Winner response",
+    "tooltip": "{0} who won the Crzy Royale",
     "group": "Responses"
   },
   "NoCurrency": {
