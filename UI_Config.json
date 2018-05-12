@@ -43,7 +43,14 @@
     "tooltip": "Command to be used for the script. LEAVE ALONE!",
     "group": "Crzy Royale"
   },
-  "Command": {
+  "cmdListofAttackers": {
+    "type": "textbox",
+    "value": "!crlist",
+    "label": "List of Players",
+    "tooltip": "Command to be used for the script. LEAVE ALONE!",
+    "group": "Crzy Royale"
+  },
+  "CrzyRoyaleCost": {
     "type": "numberbox",
     "value": "10",
     "label": "Cost to join Crzy Royale",

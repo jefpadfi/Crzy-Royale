@@ -30,7 +30,7 @@ ScriptName = "Crzy Royale"
 Website = "https://www.twitch.tv/thecrzydoc"
 Description = "This script enables you to have a battle royale in your chat."
 Creator = "TheCrzyDoctor"
-Version = "1.0.4"
+Version = "1.0.5"
 
 # ---------------------------------------
 # Settings file setup
@@ -53,6 +53,7 @@ class Settings:
             self.cmdJoin = '!crjoin'
             self.cmdLoot = '!crloot'
             self.cmdAttack = '!crattack'
+            self.cmdListofAttackers = "!crlist"
             self.Usage = 'Stream Chat'
             self.Permission = 'Everyone'
             self.CrzyRoyaleCost = 10
@@ -175,6 +176,13 @@ def Execute(data):
                     del CRConfigs.hasLooted[:]
                     CRConfigs.participants.clear()
                 return
+        elif data.GetParam(0).lower() == CRSettings.cmdListofAttackers and CRConfigs.started:
+            players = ''
+            for k in CRConfigs.participants:
+                players = players + "{0},".format(k)
+
+            msg = "Players Currently in Crzy Royale - {0}".format(players)
+            SendResp(data, CRSettings.Usage, msg)
         elif not CRConfigs.started and data.GetParam(0).lower() == CRSettings.Command.lower() \
                 or data.GetParam(0).lower() == CRSettings.cmdAttack.lower() \
                 or data.GetParam(0).lower() == CRSettings.cmdLoot.lower() \
