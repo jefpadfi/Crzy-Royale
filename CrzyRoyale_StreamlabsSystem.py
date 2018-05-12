@@ -30,7 +30,7 @@ ScriptName = "Crzy Royale"
 Website = "https://www.twitch.tv/thecrzydoc"
 Description = "This script enables you to have a battle royale in your chat."
 Creator = "TheCrzyDoctor"
-Version = "1.0.1"
+Version = "1.0.4"
 
 # ---------------------------------------
 # Settings file setup
@@ -157,7 +157,7 @@ def Execute(data):
                     CRConfigs.allowLoot = False
                     CRConfigs.allowAttack = False
                     del CRConfigs.hasLooted[:]
-                    del CRConfigs.participants[:]
+                    CRConfigs.participants.clear()
                 return
             else:
                 SendResp(data, CRSettings.Usage, CRSettings.AttackOver.format(data.GetParam(1), data.User))
@@ -173,7 +173,7 @@ def Execute(data):
                     CRConfigs.allowLoot = False
                     CRConfigs.allowAttack = False
                     del CRConfigs.hasLooted[:]
-                    del CRConfigs.participants[:]
+                    CRConfigs.participants.clear()
                 return
         elif not CRConfigs.started and data.GetParam(0).lower() == CRSettings.Command.lower() \
                 or data.GetParam(0).lower() == CRSettings.cmdAttack.lower() \
