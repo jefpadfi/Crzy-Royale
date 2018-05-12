@@ -159,7 +159,7 @@ def Execute(data):
                     del CRConfigs.hasLooted[:]
                     del CRConfigs.participants[:]
                 return
-            elif CRConfigs.participants[data.User] < CRConfigs.participants[data.GetParam(1)]:
+            else:
                 SendResp(data, CRSettings.Usage, CRSettings.AttackOver.format(data.GetParam(1), data.User))
                 del CRConfigs.participants[data.User]
                 if len(CRConfigs.participants) == 1:
@@ -175,49 +175,14 @@ def Execute(data):
                     del CRConfigs.hasLooted[:]
                     del CRConfigs.participants[:]
                 return
-            elif CRConfigs.participants[data.User] == CRConfigs.participants[data.GetParam(1)]:
-                # add bonus to both. Attacker gets 2 and Defender gets 3
-                CRConfigs.participants[data.User] = CRConfigs.participants[data.User] + 2
-                CRConfigs.participants[data.GetParam(1)] = CRConfigs.participants[data.GetParam(1)] + 3
-                # run check again to see who won.
-                if CRConfigs.participants[data.User] > CRConfigs.participants[data.GetParam(1)]:
-                    SendResp(data, CRSettings.Usage, CRSettings.AttackOver.format(data.User, data.GetParam(1)))
-                    del CRConfigs.participants[data.GetParam(1)]
-                    if len(CRConfigs.participants) == 1:
-                        # Announce the winner
-                        SendResp(data, CRSettings.Usage,
-                                 CRSettings.CrzyRoyaleWon.format(next(iter(CRConfigs.participants))))
-                        # Add predefined amount of points
-                        Parent.AddPoints(data.User, CRSettings.CRWinner)
-                        CRConfigs.started = False
-                        CRConfigs.allowJoin = False
-                        CRConfigs.allowLoot = False
-                        CRConfigs.allowAttack = False
-                        del CRConfigs.hasLooted[:]
-                        del CRConfigs.participants[:]
-                    return
-                elif CRConfigs.participants[data.User] < CRConfigs.participants[data.GetParam(1)]:
-                    SendResp(data, CRSettings.Usage, CRSettings.AttackOver.format(data.GetParam(1), data.User))
-                    del CRConfigs.participants[data.User]
-                    if len(CRConfigs.participants) == 1:
-                        # Announce the winner
-                        SendResp(data, CRSettings.Usage,
-                                 CRSettings.CrzyRoyaleWon.format(next(iter(CRConfigs.participants))))
-                        # Add predefined amount of points
-                        Parent.AddPoints(data.User, CRSettings.CRWinner)
-                        CRConfigs.started = False
-                        CRConfigs.allowJoin = False
-                        CRConfigs.allowLoot = False
-                        CRConfigs.allowAttack = False
-                        del CRConfigs.hasLooted[:]
-                        del CRConfigs.participants[:]
-                    return
         elif not CRConfigs.started and data.GetParam(0).lower() == CRSettings.Command.lower() \
                 or data.GetParam(0).lower() == CRSettings.cmdAttack.lower() \
                 or data.GetParam(0).lower() == CRSettings.cmdLoot.lower() \
                 or data.GetParam(0).lower() == CRSettings.Command.lower():
             SendResp(data, CRSettings.Usage, 'Crzy Royale has not started yet. Please wait till someone starts it.')
             return
+
+        return
 
 
 def Tick():
