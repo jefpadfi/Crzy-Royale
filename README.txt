@@ -3,7 +3,7 @@
 Crzy Royale is a simple Battle Royale script users can use to have battles between each other. They will be able to loot
 one item and ability to attack a different use who has joined the royale.
 
-To start a Battle Royale event the Streamer (Caster) or a Mod of the channel needs to use !cr start.
+To start a Battle Royale event the Streamer (Caster) or a Mod of the channel needs to use !cr start. (permission is not set yet. anyone can start it)
 
 Once the battle royale starts users will have the ability to use !cr loot and !cr attack {username}.
 
@@ -15,7 +15,7 @@ is not located in the match.
 When the user tries to attack a user that is in the match the the script will compare items to see whose attack is better.
 The user who has the higher attack will win. The loser will be knocked out and win x amount of currency.
 
-The last person to be standing will win x amount currency multiplied by 2. This is a perk of the winner.
+To see the people who joined use !crlist
 
 # Setup
 -------
