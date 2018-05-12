@@ -30,7 +30,7 @@ ScriptName = "Crzy Royale"
 Website = "https://www.twitch.tv/thecrzydoc"
 Description = "This script enables you to have a battle royale in your chat."
 Creator = "TheCrzyDoctor"
-Version = "1.0.0"
+Version = "1.0.1"
 
 # ---------------------------------------
 # Settings file setup
@@ -119,10 +119,6 @@ def Execute(data):
             SendResp(data, CRSettings.Usage, message)
             return
 
-        # check if user or command is on cooldown.
-        if is_on_cooldown(data):
-            return
-
         if data.GetParam(0).lower() == CRSettings.Command.lower() and not CRConfigs.started:
             CRConfigs.started = True
             CRConfigs.allowJoin = True
@@ -162,6 +158,7 @@ def Execute(data):
                     CRConfigs.allowAttack = False
                     del CRConfigs.hasLooted[:]
                     del CRConfigs.participants[:]
+                return
             elif CRConfigs.participants[data.User] < CRConfigs.participants[data.GetParam(1)]:
                 SendResp(data, CRSettings.Usage, CRSettings.AttackOver.format(data.GetParam(1), data.User))
                 del CRConfigs.participants[data.User]
@@ -177,6 +174,7 @@ def Execute(data):
                     CRConfigs.allowAttack = False
                     del CRConfigs.hasLooted[:]
                     del CRConfigs.participants[:]
+                return
             elif CRConfigs.participants[data.User] == CRConfigs.participants[data.GetParam(1)]:
                 # add bonus to both. Attacker gets 2 and Defender gets 3
                 CRConfigs.participants[data.User] = CRConfigs.participants[data.User] + 2
@@ -197,6 +195,7 @@ def Execute(data):
                         CRConfigs.allowAttack = False
                         del CRConfigs.hasLooted[:]
                         del CRConfigs.participants[:]
+                    return
                 elif CRConfigs.participants[data.User] < CRConfigs.participants[data.GetParam(1)]:
                     SendResp(data, CRSettings.Usage, CRSettings.AttackOver.format(data.GetParam(1), data.User))
                     del CRConfigs.participants[data.User]
@@ -212,11 +211,13 @@ def Execute(data):
                         CRConfigs.allowAttack = False
                         del CRConfigs.hasLooted[:]
                         del CRConfigs.participants[:]
+                    return
         elif not CRConfigs.started and data.GetParam(0).lower() == CRSettings.Command.lower() \
                 or data.GetParam(0).lower() == CRSettings.cmdAttack.lower() \
                 or data.GetParam(0).lower() == CRSettings.cmdLoot.lower() \
                 or data.GetParam(0).lower() == CRSettings.Command.lower():
             SendResp(data, CRSettings.Usage, 'Crzy Royale has not started yet. Please wait till someone starts it.')
+            return
 
 
 def Tick():
